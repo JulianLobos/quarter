@@ -1,8 +1,8 @@
 :root {
     --background-color: #f0f0f7;
     --card-background: #ffffff;
-    --primary-text-color: #000000;
-    --secondary-text-color: #6c757d;
+    --primary-text-color: #333333;
+    --secondary-text-color: #8a8a8e;
     --accent-color: #007aff;
     --accent-color-dark: #005ecb;
     --income-color: #34c759;
@@ -10,42 +10,44 @@
     --danger-color: #ff3b30;
     --danger-color-dark: #c50f0f;
     --border-color: #e0e0e0;
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     --border-radius: 12px;
     --border-radius-lg: 20px;
+    --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-family);
 }
 
 body {
     background-color: var(--background-color);
     color: var(--primary-text-color);
-    padding-bottom: 90px; /* Space for bottom nav */
+    padding-bottom: 90px;
+}
+
+.material-icons-outlined {
+    font-feature-settings: 'liga';
 }
 
 .app-header {
     background-color: var(--card-background);
     padding: 15px;
     border-bottom: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
 }
 
 .header-top {
+    grid-column: 1 / -1;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-}
-
-.month-navigator {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-grow: 1;
 }
 
 .month-navigator h1 {
@@ -54,39 +56,71 @@ body {
     margin: 0 10px;
 }
 
-.month-navigator button, .header-icon-btn {
+.header-icon-btn {
     background: none;
     border: none;
-    color: var(--accent-color);
+    color: var(--secondary-text-color);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 5px;
 }
-
-.header-bottom {
-    display: flex;
-    justify-content: space-around;
-    text-align: center;
+.header-icon-btn .material-icons-outlined {
+    font-size: 28px;
+}
+#prev-month-btn, #next-month-btn {
+    color: var(--accent-color);
 }
 
-.main-balance h2 {
-    font-size: 2.2rem;
+.header-main {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.balance-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--secondary-text-color);
+    font-size: 1rem;
+}
+.balance-label #toggle-balance-btn {
+    color: var(--secondary-text-color);
+}
+.balance-label .material-icons-outlined {
+    font-size: 22px;
+}
+
+#balance-amount {
+    font-size: 2.8rem;
     font-weight: 700;
-    margin: 5px 0;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .daily-budget {
     color: var(--secondary-text-color);
     font-size: 0.9rem;
 }
+.daily-budget p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--primary-text-color);
+    display: inline-block;
+    margin-right: 4px;
+}
+
+.header-right {
+    justify-self: flex-end;
+}
 
 .app-main {
     padding: 15px;
 }
 
-/* Chart responsiveness fix */
 .charts-container {
     display: flex;
     flex-direction: column;
@@ -99,19 +133,18 @@ body {
     padding: 15px;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    position: relative; /* For Chart.js responsiveness */
-    height: 280px; /* Give a consistent height */
+    position: relative;
+    height: 280px;
 }
 
 .transactions-list-container h3 {
     margin-bottom: 10px;
     font-size: 1.1rem;
     font-weight: 600;
+    padding-left: 5px;
 }
 
-#transactions-list {
-    list-style: none;
-}
+#transactions-list { list-style: none; }
 
 #transactions-list li {
     background: var(--card-background);
@@ -124,6 +157,11 @@ body {
     box-shadow: var(--shadow);
     position: relative;
     cursor: pointer;
+}
+.empty-list-msg {
+    text-align: center;
+    color: var(--secondary-text-color);
+    padding: 20px;
 }
 
 .transaction-item-details {
@@ -161,7 +199,7 @@ body {
     display: flex;
     justify-content: center;
     z-index: 100;
-    pointer-events: none; /* Allow clicks to pass through */
+    pointer-events: none;
 }
 
 .app-nav .fab {
@@ -173,10 +211,11 @@ body {
     border: none;
     font-size: 2.2rem;
     line-height: 60px;
+    text-align: center;
     box-shadow: 0 4px 15px rgba(0, 122, 255, 0.5);
     cursor: pointer;
     transition: background-color 0.2s, transform 0.2s;
-    pointer-events: auto; /* FAB is clickable */
+    pointer-events: auto;
 }
 
 .app-nav .fab:hover {
@@ -184,7 +223,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -194,7 +232,7 @@ body {
     background: rgba(0, 0, 0, 0.6);
     display: flex;
     z-index: 1000;
-    align-items: flex-end; /* Slide from bottom on mobile */
+    align-items: flex-end;
 }
 
 .modal-content {
@@ -207,29 +245,23 @@ body {
     margin: 0 auto;
 }
 
-.modal-content h3 {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
+.modal-content h3 { margin-bottom: 20px; text-align: center; font-weight: 600; }
 .form-group { margin-bottom: 15px; }
-
 .form-group label {
     display: block;
     margin-bottom: 5px;
     font-size: 0.9rem;
     color: var(--secondary-text-color);
+    font-weight: 500;
 }
-
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form-group input, .form-group select, .form-group textarea {
     width: 100%;
     padding: 12px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     background-color: var(--background-color);
+    font-family: var(--font-family);
 }
 
 .form-actions {
@@ -238,7 +270,6 @@ body {
     gap: 10px;
     margin-top: 20px;
 }
-
 .form-actions button, .button-like-label {
     padding: 10px 20px;
     border-radius: 8px;
@@ -247,31 +278,13 @@ body {
     font-size: 1rem;
     font-weight: 500;
 }
+.form-actions button[type="submit"] { background-color: var(--accent-color); color: white; }
+.form-actions button[type="button"] { background-color: var(--border-color); color: var(--primary-text-color); }
 
-.form-actions button[type="submit"] {
-    background-color: var(--accent-color);
-    color: white;
-}
+.btn-danger { background-color: var(--danger-color) !important; color: white !important; }
+.btn-danger:hover { background-color: var(--danger-color-dark) !important; }
 
-.form-actions button[type="button"] {
-    background-color: var(--border-color);
-    color: var(--primary-text-color);
-}
-
-.btn-danger {
-    background-color: var(--danger-color) !important;
-    color: white !important;
-}
-.btn-danger:hover {
-    background-color: var(--danger-color-dark) !important;
-}
-
-/* Settings Modal */
-.settings-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+.settings-options { display: flex; flex-direction: column; gap: 10px; }
 .settings-btn {
     background-color: var(--background-color);
     border: none;
@@ -279,13 +292,15 @@ body {
     border-radius: var(--border-radius);
     text-align: left;
     font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
     width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Categories Modal */
 #categories-list { margin-bottom: 20px; }
-
 .category-item {
     display: flex;
     justify-content: space-between;
@@ -295,20 +310,8 @@ body {
     margin-bottom: 8px;
     background-color: var(--background-color);
 }
-
-.category-item button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--expense-color);
-    font-size: 0.9rem;
-}
-
-#category-form .form-group {
-    display: flex;
-    gap: 10px;
-}
-
+.category-item button { background: none; border: none; cursor: pointer; color: var(--expense-color); font-size: 0.9rem; }
+#category-form .form-group { display: flex; gap: 10px; }
 #category-form button {
     padding: 12px 20px;
     border-radius: 8px;
@@ -318,48 +321,20 @@ body {
     color: white;
 }
 
-.button-like-label {
-    background-color: var(--accent-color);
-    color: white;
-    text-align: center;
-}
+.button-like-label { background-color: var(--accent-color); color: white; text-align: center; }
 
-/* Responsive */
 @media (min-width: 768px) {
-    body {
-        padding-bottom: 30px;
-    }
+    body { padding-bottom: 30px; }
     .app-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 30px;
+        grid-template-columns: 1fr auto 1fr;
+        padding: 15px 30px;
     }
-    .header-top {
-        flex-grow: 1;
-        margin-bottom: 0;
-    }
-    .header-bottom {
-        flex-grow: 1;
-        justify-content: flex-end;
-        gap: 30px;
-    }
-    .charts-container {
-        flex-direction: row;
-    }
-    .chart-wrapper {
-        flex: 1; /* Let them share space */
-    }
-    .app-nav .fab {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-    }
-    .modal-overlay {
-        align-items: center; /* Center on desktop */
-        padding: 40px;
-    }
-    .modal-content {
-        border-radius: var(--border-radius-lg);
-    }
+    .header-top { grid-column: 1 / 2; }
+    .header-main { grid-column: 2 / 3; }
+    .header-right { grid-column: 3 / 4; }
+    .charts-container { flex-direction: row; }
+    .chart-wrapper { flex: 1; }
+    .app-nav .fab { position: fixed; bottom: 30px; right: 30px; }
+    .modal-overlay { align-items: center; padding: 40px; }
+    .modal-content { border-radius: var(--border-radius-lg); }
 }

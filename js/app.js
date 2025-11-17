@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         categories: [],
         currentDate: new Date(),
         transactionToEdit: null,
+        isBalanceVisible: true,
     };
 
     // DOM Elements
@@ -17,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const transactionsListEl = document.getElementById('transactions-list');
     const addTransactionBtn = document.getElementById('add-transaction-btn');
     const settingsBtn = document.getElementById('settings-btn');
+    const toggleBalanceBtn = document.getElementById('toggle-balance-btn');
+    const toggleBalanceIcon = document.getElementById('toggle-balance-icon');
 
     // Modals
     const transactionModal = document.getElementById('transaction-modal');
@@ -51,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const STORAGE_KEYS = {
         transactions: 'quarter_transactions',
         categories: 'quarter_categories',
+        isBalanceVisible: 'quarter_isBalanceVisible',
     };
 
     const saveData = (key, data) => {
@@ -59,7 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadData = (key) => {
         const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
+        try {
+            return data ? JSON.parse(data) : null;
+        } catch (e) {
+            console.error(`Error parsing JSON from localStorage key "${key}":`, e);
+            return null;
+        }
     };
 
     // INITIALIZATION
@@ -86,6 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
             saveData(STORAGE_KEYS.categories, categories);
         }
         state.categories = categories;
+
+        const isVisible = loadData(STORAGE_KEYS.isBalanceVisible);
+        state.isBalanceVisible = isVisible === null ? true : isVisible;
     };
 
     // RENDER FUNCTIONS
@@ -104,6 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderSummary = () => {
+        toggleBalanceIcon.textContent = state.isBalanceVisible ? 'visibility' : 'visibility_off';
+
+        if (!state.isBalanceVisible) {
+            balanceAmountEl.textContent = '******';
+            dailyBudgetEl.textContent = '******';
+            return;
+        }
+
         const transactionsForMonth = getTransactionsForCurrentMonth();
         const balance = transactionsForMonth.reduce((acc, t) => {
             return t.type === 'income' ? acc + t.amount : acc - t.amount;
@@ -141,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span>${t.date.toLocaleDateString('es-ES')} - ${t.details || 'Sin detalles'}</span>
                     </div>
                     <div class="transaction-item-amount ${t.type}">
-                        ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
+                        ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount, state.isBalanceVisible)}
                     </div>
                 `;
                 li.addEventListener('click', () => openTransactionModal(t));
@@ -235,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addEventListeners = () => {
         prevMonthBtn.addEventListener('click', changeMonth(-1));
         nextMonthBtn.addEventListener('click', changeMonth(1));
+        toggleBalanceBtn.addEventListener('click', toggleBalanceVisibility);
         addTransactionBtn.addEventListener('click', () => openTransactionModal());
         cancelTransactionBtn.addEventListener('click', closeTransactionModal);
         deleteTransactionBtn.addEventListener('click', handleDeleteTransaction);
@@ -396,6 +417,14 @@ document.addEventListener('DOMContentLoaded', () => {
         render();
     };
 
+    const toggleBalanceVisibility = () => {
+        state.isBalanceVisible = !state.isBalanceVisible;
+        saveData(STORAGE_KEYS.isBalanceVisible, state.isBalanceVisible);
+        renderSummary();
+        // We also need to re-render transactions to hide/show amounts there
+        renderTransactions(); 
+    };
+
     const getTransactionsForCurrentMonth = () => {
         return state.transactions.filter(t =>
             t.date.getFullYear() === state.currentDate.getFullYear() &&
@@ -463,7 +492,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // HELPERS
-    const formatCurrency = (amount) => {
+    const formatCurrency = (amount, isVisible = true) => {
+        if (!isVisible) return '******';
         const formattedAmount = new Intl.NumberFormat('es-ES', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
