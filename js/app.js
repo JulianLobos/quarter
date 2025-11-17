@@ -16,13 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthBtn = document.getElementById('next-month-btn');
     const transactionsListEl = document.getElementById('transactions-list');
     const addTransactionBtn = document.getElementById('add-transaction-btn');
+    const settingsBtn = document.getElementById('settings-btn');
 
     // Modals
     const transactionModal = document.getElementById('transaction-modal');
     const transactionForm = document.getElementById('transaction-form');
     const transactionModalTitle = document.getElementById('transaction-modal-title');
     const cancelTransactionBtn = document.getElementById('cancel-transaction-btn');
+    const deleteTransactionBtn = document.getElementById('delete-transaction-btn');
 
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
+    
     const categoriesModal = document.getElementById('categories-modal');
     const manageCategoriesBtn = document.getElementById('manage-categories-btn');
     const closeCategoriesModalBtn = document.getElementById('close-categories-modal-btn');
@@ -95,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMonthYearEl.textContent = state.currentDate.toLocaleDateString('es-ES', {
             month: 'long',
             year: 'numeric'
-        });
+        }).replace(/^\w/, c => c.toUpperCase());
     };
 
     const renderSummary = () => {
@@ -107,10 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const today = new Date();
         const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-        const remainingDays = state.currentDate.getMonth() === today.getMonth() ? daysInMonth - today.getDate() + 1 : 0;
+        const isCurrentMonth = state.currentDate.getFullYear() === today.getFullYear() && state.currentDate.getMonth() === today.getMonth();
+        const remainingDays = isCurrentMonth ? daysInMonth - today.getDate() + 1 : 0;
         
-        const dailyBudget = remainingDays > 0 ? balance / remainingDays : 0;
-        dailyBudgetEl.textContent = formatCurrency(dailyBudget > 0 ? dailyBudget : 0);
+        const dailyBudget = remainingDays > 0 && balance > 0 ? balance / remainingDays : 0;
+        dailyBudgetEl.textContent = formatCurrency(dailyBudget);
     };
 
     const renderTransactions = () => {
@@ -118,7 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const transactionsForMonth = getTransactionsForCurrentMonth();
 
         if (transactionsForMonth.length === 0) {
-            transactionsListEl.innerHTML = '<li><p>No hay transacciones este mes.</p></li>';
+            const li = document.createElement('li');
+            li.innerHTML = `<p class="empty-list-msg">No hay transacciones este mes.</p>`;
+            transactionsListEl.appendChild(li);
             return;
         }
 
@@ -126,10 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .sort((a, b) => b.date - a.date)
             .forEach(t => {
                 const li = document.createElement('li');
+                li.dataset.transactionId = t.id;
                 li.innerHTML = `
                     <div class="transaction-item-details">
                         <p>${getCategoryName(t.category)}</p>
-                        <span>${t.date.toLocaleDateString('es-ES')} - ${t.details || ''}</span>
+                        <span>${t.date.toLocaleDateString('es-ES')} - ${t.details || 'Sin detalles'}</span>
                     </div>
                     <div class="transaction-item-amount ${t.type}">
                         ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
@@ -170,39 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
             labels,
             datasets: [
-                {
-                    label: 'Ingresos',
-                    data: incomeData,
-                    backgroundColor: 'rgba(52, 199, 89, 0.5)',
-                    borderColor: 'rgba(52, 199, 89, 1)',
-                    borderWidth: 1,
-                    fill: true,
-                },
-                {
-                    label: 'Gastos',
-                    data: expenseData,
-                    backgroundColor: 'rgba(255, 59, 48, 0.5)',
-                    borderColor: 'rgba(255, 59, 48, 1)',
-                    borderWidth: 1,
-                    fill: true,
-                }
+                { label: 'Ingresos', data: incomeData, backgroundColor: 'rgba(52, 199, 89, 0.5)', borderColor: 'rgba(52, 199, 89, 1)', borderWidth: 1, fill: true },
+                { label: 'Gastos', data: expenseData, backgroundColor: 'rgba(255, 59, 48, 0.5)', borderColor: 'rgba(255, 59, 48, 1)', borderWidth: 1, fill: true }
             ]
         };
 
         if (dailyFlowChart) dailyFlowChart.destroy();
         dailyFlowChart = new Chart(document.getElementById('daily-flow-chart'), {
-            type: 'line',
-            data,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: 'Flujo diario del mes' }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
+            type: 'line', data, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Flujo diario del mes' } }, scales: { y: { beginAtZero: true } } }
         });
     };
 
@@ -220,26 +204,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const chartData = {
             labels,
             datasets: [{
-                label: 'Gastos por Categoría',
-                data,
-                backgroundColor: [
-                    '#ff9f40', '#ff6384', '#36a2eb', '#cc65fe', '#ffcd56',
-                    '#4bc0c0', '#f7786b', '#a3a0fb', '#e8c3b9', '#5e72e4'
-                ],
+                label: 'Gastos por Categoría', data,
+                backgroundColor: ['#ff9f40', '#ff6384', '#36a2eb', '#cc65fe', '#ffcd56', '#4bc0c0', '#f7786b', '#a3a0fb'],
             }]
         };
 
         if (categoryExpensesChart) categoryExpensesChart.destroy();
         categoryExpensesChart = new Chart(document.getElementById('category-expenses-chart'), {
-            type: 'doughnut',
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: 'Gastos por categoría' }
-                }
-            }
+            type: 'doughnut', data: chartData, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Gastos por categoría' } } }
         });
     };
 
@@ -265,18 +237,28 @@ document.addEventListener('DOMContentLoaded', () => {
         nextMonthBtn.addEventListener('click', changeMonth(1));
         addTransactionBtn.addEventListener('click', () => openTransactionModal());
         cancelTransactionBtn.addEventListener('click', closeTransactionModal);
+        deleteTransactionBtn.addEventListener('click', handleDeleteTransaction);
         transactionForm.addEventListener('submit', handleTransactionFormSubmit);
+        
+        settingsBtn.addEventListener('click', openSettingsModal);
+        closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
+
         manageCategoriesBtn.addEventListener('click', openCategoriesModal);
         closeCategoriesModalBtn.addEventListener('click', closeCategoriesModal);
-        categoryForm.addEventListener('submit', handleCategoryFormSubmit);
-        categoriesListEl.addEventListener('click', handleCategoryActions);
+        
         importExportBtn.addEventListener('click', openImportExportModal);
         closeImportExportModalBtn.addEventListener('click', closeImportExportModal);
+
+        categoryForm.addEventListener('submit', handleCategoryFormSubmit);
+        categoriesListEl.addEventListener('click', handleCategoryActions);
         exportDataBtn.addEventListener('click', exportData);
         importFileInput.addEventListener('change', importData);
     };
 
     // MODAL HANDLERS
+    const openModal = (modal) => modal.style.display = 'flex';
+    const closeModal = (modal) => modal.style.display = 'none';
+
     const openTransactionModal = (transaction = null) => {
         transactionForm.reset();
         state.transactionToEdit = transaction;
@@ -284,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (transaction) {
             transactionModalTitle.textContent = 'Editar Transacción';
+            deleteTransactionBtn.style.display = 'block';
             document.getElementById('transaction-id').value = transaction.id;
             document.getElementById('transaction-type').value = transaction.type;
             document.getElementById('transaction-amount').value = transaction.amount;
@@ -293,35 +276,37 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('transaction-details').value = transaction.details;
         } else {
             transactionModalTitle.textContent = 'Nueva Transacción';
+            deleteTransactionBtn.style.display = 'none';
             document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
         }
-        transactionModal.style.display = 'flex';
+        openModal(transactionModal);
     };
 
     const closeTransactionModal = () => {
-        transactionModal.style.display = 'none';
+        closeModal(transactionModal);
         state.transactionToEdit = null;
     };
 
+    const openSettingsModal = () => openModal(settingsModal);
+    const closeSettingsModal = () => closeModal(settingsModal);
+
     const openCategoriesModal = () => {
         renderCategories();
-        categoriesModal.style.display = 'flex';
+        closeSettingsModal();
+        openModal(categoriesModal);
     };
-
     const closeCategoriesModal = () => {
-        categoriesModal.style.display = 'none';
+        closeModal(categoriesModal);
         resetCategoryForm();
     };
 
     const openImportExportModal = () => {
-        importExportModal.style.display = 'flex';
+        closeSettingsModal();
+        openModal(importExportModal);
     };
+    const closeImportExportModal = () => closeModal(importExportModal);
 
-    const closeImportExportModal = () => {
-        importExportModal.style.display = 'none';
-    };
-
-    // FORM HANDLERS
+    // FORM & ACTION HANDLERS
     const handleTransactionFormSubmit = (e) => {
         e.preventDefault();
         const id = state.transactionToEdit ? state.transactionToEdit.id : Date.now();
@@ -330,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type: document.getElementById('transaction-type').value,
             amount: parseFloat(document.getElementById('transaction-amount').value),
             category: parseInt(document.getElementById('transaction-category').value),
-            date: new Date(document.getElementById('transaction-date').value + 'T00:00:00'), // Avoid timezone issues
+            date: new Date(document.getElementById('transaction-date').value + 'T00:00:00'),
             paymentMethod: document.getElementById('transaction-payment-method').value,
             details: document.getElementById('transaction-details').value,
         };
@@ -346,32 +331,40 @@ document.addEventListener('DOMContentLoaded', () => {
         closeTransactionModal();
     };
 
+    const handleDeleteTransaction = () => {
+        if (!state.transactionToEdit) return;
+        if (confirm('¿Estás seguro de que quieres eliminar esta transacción?')) {
+            state.transactions = state.transactions.filter(t => t.id !== state.transactionToEdit.id);
+            saveData(STORAGE_KEYS.transactions, state.transactions);
+            render();
+            closeTransactionModal();
+        }
+    };
 
     const handleCategoryFormSubmit = (e) => {
         e.preventDefault();
         const name = categoryNameInput.value.trim();
         const id = categoryIdInput.value ? parseInt(categoryIdInput.value) : null;
-
         if (!name) return;
 
-        if (id) { // Editing
+        if (id) {
             const category = state.categories.find(c => c.id === id);
             if (category) category.name = name;
-        } else { // Adding
+        } else {
             if (state.categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
                 alert('La categoría ya existe.');
                 return;
             }
             state.categories.push({ id: Date.now(), name });
         }
-
         saveData(STORAGE_KEYS.categories, state.categories);
         renderCategories();
         resetCategoryForm();
     };
 
     const handleCategoryActions = (e) => {
-        const target = e.target;
+        const target = e.target.closest('button');
+        if (!target) return;
         const id = parseInt(target.dataset.id);
 
         if (target.classList.contains('edit-cat-btn')) {
@@ -385,8 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (target.classList.contains('delete-cat-btn')) {
-            const isUsed = state.transactions.some(t => t.category === id);
-            if (isUsed) {
+            if (state.transactions.some(t => t.category === id)) {
                 alert('No se puede eliminar una categoría que está en uso.');
                 return;
             }
@@ -430,10 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // IMPORT / EXPORT
     const exportData = () => {
-        const data = {
-            transactions: state.transactions,
-            categories: state.categories,
-        };
+        const data = { transactions: state.transactions, categories: state.categories };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -447,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const importData = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (event) => {
             try {
@@ -466,9 +454,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 alert('Error al leer el archivo.');
-                console.error(error);
             } finally {
-                importFileInput.value = ''; // Reset file input
+                importFileInput.value = '';
                 closeImportExportModal();
             }
         };
@@ -477,11 +464,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // HELPERS
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(amount);
+        const formattedAmount = new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(amount);
+        return `$${formattedAmount}`;
     };
 
     const getCategoryName = (id) => {
-        const category = state.categories.find(c => c.id === id);
+        const category = state.categories.find(c => c.id === parseInt(id));
         return category ? category.name : 'Sin Categoría';
     };
 
