@@ -1,5 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Register Chart.js plugins
+    try {
+        if (ChartDataLabels) {
+            Chart.register(ChartDataLabels);
+            // Set default options for the plugin
+            Chart.defaults.set('plugins.datalabels', {
+                color: '#fff',
+                font: {
+                    family: 'Poppins, sans-serif',
+                    weight: 'bold'
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Failed to register ChartDataLabels plugin', e);
+    }
+
     // State
     let state = {
         transactions: [],
@@ -265,25 +282,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 plugins: { 
                     title: { 
                         display: true, 
-                        text: 'Gastos por categoría',
-                        font: { family: 'Poppins, sans-serif' }
-                    },
-                    legend: {
-                        labels: {
-                            font: { family: 'Poppins, sans-serif' }
-                        }
+                        text: 'Gastos por categoría'
                     },
                     datalabels: {
                         formatter: (value, ctx) => {
                             const datapoints = ctx.chart.data.datasets[0].data;
+                            if (datapoints.length === 0) return '';
                             const total = datapoints.reduce((total, datapoint) => total + datapoint, 0);
+                            if (total === 0) return '';
                             const percentage = (value / total) * 100;
-                            return percentage.toFixed(2) + '%';
-                        },
-                        color: '#fff',
-                        font: {
-                            family: 'Poppins, sans-serif',
-                            weight: 'bold'
+                            // Don't show labels for small slices
+                            if (percentage < 3) return ''; 
+                            return percentage.toFixed(1) + '%';
                         }
                     }
                 } 
