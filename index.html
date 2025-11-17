@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quarter</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="shortcut icon" href="assets/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="month-navigator">
+            <button id="prev-month-btn">&lt;</button>
+            <h1 id="current-month-year"></h1>
+            <button id="next-month-btn">&gt;</button>
+        </div>
+        <div class="main-balance">
+            <span>Balance</span>
+            <h2 id="balance-amount">$0.00</h2>
+        </div>
+        <div class="daily-budget">
+            <span>Presupuesto diario</span>
+            <p id="daily-budget-amount">$0.00</p>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <section class="charts-container">
+            <div class="chart-wrapper">
+                <canvas id="daily-flow-chart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="category-expenses-chart"></canvas>
+            </div>
+        </section>
+
+        <section class="transactions-list-container">
+            <h3>Transacciones</h3>
+            <ul id="transactions-list">
+                <!-- Transactions will be injected here by JS -->
+            </ul>
+        </section>
+    </main>
+
+    <nav class="app-nav">
+        <button id="add-transaction-btn" class="fab">+</button>
+        <div class="nav-menu">
+            <button id="manage-categories-btn">Categorías</button>
+            <button id="import-export-btn">Importar/Exportar</button>
+        </div>
+    </nav>
+
+    <!-- Add/Edit Transaction Modal -->
+    <div id="transaction-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <form id="transaction-form">
+                <h3 id="transaction-modal-title">Nueva Transacción</h3>
+                <input type="hidden" id="transaction-id">
+                
+                <div class="form-group">
+                    <label for="transaction-type">Tipo</label>
+                    <select id="transaction-type" required>
+                        <option value="expense">Gasto</option>
+                        <option value="income">Ingreso</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="transaction-amount">Monto</label>
+                    <input type="number" id="transaction-amount" placeholder="0.00" required step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="transaction-category">Categoría</label>
+                    <select id="transaction-category" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="transaction-date">Fecha</label>
+                    <input type="date" id="transaction-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="transaction-payment-method">Medio de Pago</label>
+                    <input type="text" id="transaction-payment-method" placeholder="Ej: Tarjeta, Efectivo">
+                </div>
+
+                <div class="form-group">
+                    <label for="transaction-details">Detalle</label>
+                    <textarea id="transaction-details" rows="2"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="cancel-transaction-btn">Cancelar</button>
+                    <button type="submit">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Categories Modal -->
+    <div id="categories-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Gestionar Categorías</h3>
+            <div id="categories-list">
+                <!-- Category list will be injected here -->
+            </div>
+            <form id="category-form">
+                <input type="hidden" id="category-id">
+                <div class="form-group">
+                    <input type="text" id="category-name" placeholder="Nombre de la categoría" required>
+                    <button type="submit" id="save-category-btn">Añadir</button>
+                </div>
+            </form>
+            <div class="form-actions">
+                <button type="button" id="close-categories-modal-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import/Export Modal -->
+    <div id="import-export-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Importar / Exportar</h3>
+            <p>Realiza una copia de seguridad de tus datos o restáurala desde un archivo JSON.</p>
+            <div class="form-actions">
+                <button id="export-data-btn">Exportar a JSON</button>
+                <label class="button-like-label" for="import-file-input">Importar desde JSON</label>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
+            <div class="form-actions">
+                <button type="button" id="close-import-export-modal-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
