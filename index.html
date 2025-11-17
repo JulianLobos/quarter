@@ -16,12 +16,17 @@
 
     <header class="app-header">
         <div class="header-top">
-            <button id="prev-month-btn" class="header-icon-btn">
-                <span class="material-icons-outlined">arrow_back_ios</span>
-            </button>
-            <h1 id="current-month-year"></h1>
-            <button id="next-month-btn" class="header-icon-btn">
-                <span class="material-icons-outlined">arrow_forward_ios</span>
+            <div class="month-navigator">
+                <button id="prev-month-btn" class="header-icon-btn">
+                    <span class="material-icons-outlined">arrow_back_ios</span>
+                </button>
+                <h1 id="current-month-year"></h1>
+                <button id="next-month-btn" class="header-icon-btn">
+                    <span class="material-icons-outlined">arrow_forward_ios</span>
+                </button>
+            </div>
+            <button id="settings-btn" class="header-icon-btn">
+                <span class="material-icons-outlined">menu</span>
             </button>
         </div>
         <div class="header-main">
@@ -38,11 +43,6 @@
                     <span>presupuesto diario</span>
                 </div>
             </div>
-        </div>
-        <div class="header-right">
-            <button id="settings-btn" class="header-icon-btn">
-                <span class="material-icons-outlined">menu</span>
-            </button>
         </div>
     </header>
 
@@ -63,6 +63,10 @@
             </ul>
         </section>
     </main>
+
+    <footer class="app-footer">
+        <p>Hecho con ❤️ por JL</p>
+    </footer>
 
     <nav class="app-nav">
         <button id="add-transaction-btn" class="fab">+</button>

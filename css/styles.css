@@ -35,25 +35,28 @@ body {
 
 .app-header {
     background-color: var(--card-background);
-    padding: 15px;
+    padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 10px;
 }
 
 .header-top {
-    grid-column: 1 / -1;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.month-navigator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
 }
 
 .month-navigator h1 {
     font-size: 1.2rem;
     font-weight: 600;
     margin: 0 10px;
+    text-align: center;
 }
 
 .header-icon-btn {
@@ -74,9 +77,8 @@ body {
 }
 
 .header-main {
-    grid-column: 1 / -1;
     text-align: center;
-    padding: 10px 0;
+    padding: 10px 0 5px 0;
 }
 
 .balance-label {
@@ -86,6 +88,7 @@ body {
     gap: 8px;
     color: var(--secondary-text-color);
     font-size: 1rem;
+    margin-bottom: 5px;
 }
 .balance-label #toggle-balance-btn {
     color: var(--secondary-text-color);
@@ -113,12 +116,15 @@ body {
     margin-right: 4px;
 }
 
-.header-right {
-    justify-self: flex-end;
-}
-
 .app-main {
     padding: 15px;
+}
+
+.app-footer {
+    text-align: center;
+    padding: 20px 15px;
+    color: var(--secondary-text-color);
+    font-size: 0.8rem;
 }
 
 .charts-container {
