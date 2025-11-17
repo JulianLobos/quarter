@@ -206,7 +206,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dailyFlowChart) dailyFlowChart.destroy();
         dailyFlowChart = new Chart(document.getElementById('daily-flow-chart'), {
-            type: 'line', data, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Flujo diario del mes' } }, scales: { y: { beginAtZero: true } } }
+            type: 'line', 
+            data, 
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    title: { 
+                        display: true, 
+                        text: 'Flujo diario del mes',
+                        font: { family: 'Poppins, sans-serif' }
+                    },
+                    legend: {
+                        labels: {
+                            font: { family: 'Poppins, sans-serif' }
+                        }
+                    }
+                }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { font: { family: 'Poppins, sans-serif' } }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Poppins, sans-serif' } }
+                    }
+                } 
+            }
         });
     };
 
@@ -231,7 +257,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (categoryExpensesChart) categoryExpensesChart.destroy();
         categoryExpensesChart = new Chart(document.getElementById('category-expenses-chart'), {
-            type: 'doughnut', data: chartData, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Gastos por categoría' } } }
+            type: 'doughnut', 
+            data: chartData, 
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    title: { 
+                        display: true, 
+                        text: 'Gastos por categoría',
+                        font: { family: 'Poppins, sans-serif' }
+                    },
+                    legend: {
+                        labels: {
+                            font: { family: 'Poppins, sans-serif' }
+                        }
+                    },
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            const datapoints = ctx.chart.data.datasets[0].data;
+                            const total = datapoints.reduce((total, datapoint) => total + datapoint, 0);
+                            const percentage = (value / total) * 100;
+                            return percentage.toFixed(2) + '%';
+                        },
+                        color: '#fff',
+                        font: {
+                            family: 'Poppins, sans-serif',
+                            weight: 'bold'
+                        }
+                    }
+                } 
+            }
         });
     };
 
