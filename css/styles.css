@@ -192,6 +192,7 @@ body {
 .transaction-item-amount {
     font-size: 1.1rem;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .transaction-item-amount.income { color: var(--income-color); }

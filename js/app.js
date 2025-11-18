@@ -216,14 +216,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
             labels,
             datasets: [
-                { label: 'Ingresos', data: incomeData, backgroundColor: 'rgba(52, 199, 89, 0.5)', borderColor: 'rgba(52, 199, 89, 1)', borderWidth: 1, fill: true },
-                { label: 'Gastos', data: expenseData, backgroundColor: 'rgba(255, 59, 48, 0.5)', borderColor: 'rgba(255, 59, 48, 1)', borderWidth: 1, fill: true }
+                { label: 'Ingresos', data: incomeData, backgroundColor: 'rgba(52, 199, 89, 0.8)' },
+                { label: 'Gastos', data: expenseData, backgroundColor: 'rgba(255, 59, 48, 0.8)' }
             ]
         };
 
         if (dailyFlowChart) dailyFlowChart.destroy();
         dailyFlowChart = new Chart(document.getElementById('daily-flow-chart'), {
-            type: 'line', 
+            type: 'bar', 
             data, 
             options: { 
                 responsive: true, 
@@ -238,6 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         labels: {
                             font: { family: 'Poppins, sans-serif' }
                         }
+                    },
+                    datalabels: {
+                        display: false
                     }
                 }, 
                 scales: { 
